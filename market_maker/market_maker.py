@@ -549,7 +549,7 @@ class OrderManager:
         quantity = int(abs(self.exchange.get_delta()))
         position = self.exchange.get_position()
         position_price = position['avgEntryPrice']
-        price = int(position_price*0.995)
+        price = int(position_price*0.9985)
         return {'price': price, 'orderQty': quantity, 'side': "Buy"}
 
     def no_loss_buy(self):
@@ -571,7 +571,7 @@ class OrderManager:
         quantity = int(abs(self.exchange.get_delta()))
         position = self.exchange.get_position()
         position_price = position['avgEntryPrice']
-        price = int(position_price*1.005)
+        price = int(position_price*1.0015)
         return {'price': price, 'orderQty': quantity, 'side': "Sell"}
 
     def no_loss_sell(self):
