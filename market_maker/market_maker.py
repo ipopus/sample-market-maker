@@ -551,7 +551,9 @@ class OrderManager:
         self.exchange.cancel_all_orders()
         buy_order=self.prepare_no_loss_buy_order()
         buy_orders=[buy_order]
-        self.converge_orders(self, buy_orders, [])
+        sell_orders=[]
+        print(buy_orders)
+        self.converge_orders(self, buy_orders, sell_orders)
         sleep(10)
         while int(abs(self.exchange.get_delta()))>0:
             logger.info('no loss buy order pending')
