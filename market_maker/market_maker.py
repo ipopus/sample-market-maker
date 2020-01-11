@@ -543,7 +543,8 @@ class OrderManager:
         """Create an order object."""
         quantity = int(abs(self.exchange.get_delta()))
         position = self.exchange.get_position()
-        price = int(position['avgEntryPrice']*0.995)
+        position_price = position['avgEntryPrice']
+        price = int(position_price*0.995)
         return {'price': price, 'orderQty': quantity, 'side': "Buy"}
 
     def no_loss_buy(self):
