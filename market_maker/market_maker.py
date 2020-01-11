@@ -531,10 +531,12 @@ class OrderManager:
         for order in existing_orders:
             if order['side'] == 'Buy':
                 if order['price'] > float(position['avgEntryPrice']):
-                    no_loss_buy=1
+                    if int(self.exchange.get_delta())<0:
+                        no_loss_buy=1
             else:
                 if order['price'] < float(position['avgEntryPrice']):
-                    no_loss_sell=1
+                    if int(self.exchange.get_delta())>0:
+                        no_loss_sell=1
         if no_loss_buy==1:
             self.no_loss_buy()
         elif no_loss_sell==1:
