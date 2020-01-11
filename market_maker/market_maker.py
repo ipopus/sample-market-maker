@@ -552,12 +552,11 @@ class OrderManager:
         buy_order=self.prepare_no_loss_buy_order()
         buy_orders=[buy_order]
         sell_orders=[]
-        print(buy_orders)
         self.converge_orders(buy_orders, sell_orders)
         sleep(10)
         while int(abs(self.exchange.get_delta()))>0:
             logger.info('no loss buy order pending')
-            sleep(2)
+            sleep(10)
         self.restart()
 
 
@@ -566,21 +565,21 @@ class OrderManager:
         """Create an order object."""
         quantity = int(abs(self.exchange.get_delta()))
         position = self.exchange.get_position()
-        price = int(position['avgEntryPrice']*1.005)
+        position_price = position['avgEntryPrice']
+        price = int(position_price*1.005)
         return {'price': price, 'orderQty': quantity, 'side': "Sell"}
 
     def no_loss_sell(self):
         self.exchange.cancel_all_orders()
-        sell_orders=[]
-        sell_orders=sell_orders.append(self.prepare_no_loss_sell_order())
-        self.converge_orders(self, [], sell_orders)
+        sell_order=self.prepare_no_loss_sell_order()
+        sell_orders=[sell_order]
+        buy_orders=[]
+        self.converge_orders(buy_orders, sell_orders)
         sleep(10)
         while int(abs(self.exchange.get_delta()))>0:
             logger.info('no loss sell order pending')
-            sleep(2)
+            sleep(10)
         self.restart()
-
-
 
 
 
