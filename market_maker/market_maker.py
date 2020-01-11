@@ -523,6 +523,9 @@ class OrderManager:
     def no_loss(self):
         existing_orders = self.exchange.get_orders()
         position = self.exchange.get_position()
+        quantity = int(abs(self.exchange.get_delta()))
+        if quantity ==0:
+            return
         no_loss_buy=0
         no_loss_sell=0
         for order in existing_orders:
