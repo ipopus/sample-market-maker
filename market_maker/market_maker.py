@@ -512,11 +512,74 @@ class OrderManager:
 
             self.sanity_check()  # Ensures health of mm - several cut-out points here
             self.print_status()  # Print skew, delta, etc
+            self.no_loss() #Check existing orders and position
             self.place_orders()  # Creates desired orders and converges to existing orders
 
     def restart(self):
         logger.info("Restarting the market maker...")
         os.execv(sys.executable, [sys.executable] + sys.argv)
+
+    #Check if a buy order is obove the current position or a sell order below the position.
+    def no_loss(self):
+        existing_orders = self.exchange.get_orders()
+        position = self.exchange.get_position()
+        no_loss_buy=0
+        no_loss_sell=0
+        for order in existing_orders:
+            if order['side'] == 'Buy':
+                if order['price'] > float(position['avgEntryPrice']):
+                    no_loss_buy=1
+            else:
+                if order['price'] < float(position['avgEntryPrice']):
+                    no_loss_sell=1
+        if no_loss_buy==1:
+            self.no_loss_buy()
+        elif no_loss_sell==1:
+            self.no_loss_sell()
+
+
+    #Cancel orders and create an order below the position
+    def prepare_no_loss_buy_order(self):
+        """Create an order object."""
+        quantity = int(abs(self.exchange.get_delta()))
+        position = self.exchange.get_position()
+        price = int(position['avgEntryPrice']*0.995)
+        return {'price': price, 'orderQty': quantity, 'side': "Buy"}
+
+    def no_loss_buy(self):
+        self.exchange.cancel_all_orders()
+        buy_orders=[]
+        buy_orders=buy_orders.append(self.prepare_no_loss_buy_order())
+        self.converge_orders(self, buy_orders, [])
+        sleep(10)
+        while int(abs(self.exchange.get_delta()))>0:
+            logger.info('no loss buy order pending')
+            sleep(2)
+        self.restart()
+
+
+    #Cancel orders and create an order above the position
+    def prepare_no_loss_sell_order(self):
+        """Create an order object."""
+        quantity = int(abs(self.exchange.get_delta()))
+        position = self.exchange.get_position()
+        price = int(position['avgEntryPrice']*1.005)
+        return {'price': price, 'orderQty': quantity, 'side': "Sell"}
+
+    def no_loss_sell(self):
+        self.exchange.cancel_all_orders()
+        sell_orders=[]
+        sell_orders=sell_orders.append(self.prepare_no_loss_sell_order())
+        self.converge_orders(self, [], sell_orders)
+        sleep(10)
+        while int(abs(self.exchange.get_delta()))>0:
+            logger.info('no loss sell order pending')
+            sleep(2)
+        self.restart()
+
+
+
+
 
 #
 # Helpers
@@ -538,7 +601,7 @@ def margin(instrument, quantity, price):
 
 
 def run():
-    logger.info('BitMEX Market Maker Version: %s\n' % constants.VERSION)
+    logger.info('BitMEX Market Maker modified by ipopus Version: %s\n' % constants.VERSION)
 
     om = OrderManager()
     # Try/except just keeps ctrl-c from printing an ugly stacktrace
