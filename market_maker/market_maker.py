@@ -553,7 +553,7 @@ class OrderManager:
         buy_orders=[buy_order]
         sell_orders=[]
         print(buy_orders)
-        self.converge_orders(self, buy_orders, sell_orders)
+        self.converge_orders(buy_orders, sell_orders)
         sleep(10)
         while int(abs(self.exchange.get_delta()))>0:
             logger.info('no loss buy order pending')
