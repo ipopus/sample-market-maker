@@ -548,8 +548,8 @@ class OrderManager:
 
     def no_loss_buy(self):
         self.exchange.cancel_all_orders()
-        buy_orders=[]
-        buy_orders=buy_orders.append(self.prepare_no_loss_buy_order())
+        buy_order=self.prepare_no_loss_buy_order()
+        buy_orders=[buy_order]
         self.converge_orders(self, buy_orders, [])
         sleep(10)
         while int(abs(self.exchange.get_delta()))>0:
