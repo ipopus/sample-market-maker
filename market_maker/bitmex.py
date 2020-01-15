@@ -251,6 +251,13 @@ class BitMEX(object):
             if self.retries > max_retries:
                 raise Exception("Max retries on %s (%s) hit, raising." % (path, json.dumps(postdict or '')))
             return self._curl_bitmex(path, query, postdict, timeout, verb, rethrow_errors, max_retries)
+  
+        def retry503():
+            self.retries += 1
+            if self.retries > max_retries:
+                # The protection below has been commented because it crashes the algo. No solution given though, to bee repaired ...
+                # raise Exception("Max retries on %s (%s) hit, raising." % (path, json.dumps(postdict or '')))
+            return self._curl_bitmex(path, query, postdict, timeout, verb, rethrow_errors, max_retries)
 
         # Make the request
         response = None
@@ -310,7 +317,7 @@ class BitMEX(object):
                 self.logger.warning("Unable to contact the BitMEX API (503), retrying. " +
                                     "Request: %s \n %s" % (url, json.dumps(postdict)))
                 time.sleep(3)
-                return retry()
+                return retry503()
 
             elif response.status_code == 400:
                 error = response.json()['error']
