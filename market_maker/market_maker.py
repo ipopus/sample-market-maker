@@ -561,6 +561,7 @@ class OrderManager:
         sleep(10)
         while int(abs(self.exchange.get_delta()))>0:
             logger.info('no loss buy order pending')
+            logger.info(int(abs(self.exchange.get_delta())))
             sleep(10)
         self.restart()
 
@@ -583,6 +584,7 @@ class OrderManager:
         sleep(10)
         while int(abs(self.exchange.get_delta()))>0:
             logger.info('no loss sell order pending')
+            logger.info(int(abs(self.exchange.get_delta())))
             sleep(10)
         self.restart()
 
